@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const fadeDuration = 2000;
+const fadeDuration = 500;
 
 export default class SlowText extends React.Component {
   constructor() {

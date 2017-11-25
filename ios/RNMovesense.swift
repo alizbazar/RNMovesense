@@ -56,7 +56,8 @@ class RNMovesense: RCTEventEmitter {
         "uuid": device.uuid,
         "serial": device.serial
       ])
-      if (device.localName == "Movesense 174630000650") {
+      if (device.localName == "Movesense 174630000711") {
+//      if (device.localName == "Movesense 174630000650") {
         self.movesense.stopScan()
         if (self.deviceFound) {
           return

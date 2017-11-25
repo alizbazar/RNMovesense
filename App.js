@@ -15,9 +15,12 @@ import {
   NativeEventEmitter,
 } from 'react-native';
 
+import UIContainer from './app/App'
+
 const RNMovesense = NativeModules.RNMovesense
 
 const RNMovesenseEmitter = new NativeEventEmitter(RNMovesense)
+
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -69,6 +72,10 @@ export default class App extends Component {
     RNMovesense.addEvent('hey', 'there')
   }
 
+  componentDidMount () {
+    this.init()
+  }
+
   history = []
   unsubscribers = []
   init = () => {
@@ -86,7 +93,7 @@ export default class App extends Component {
     
     this.unsubscribers.push(RNMovesenseEmitter.addListener('INFO', data => {
       console.log('INFO', data)
-      if (data.type === 'DEVICE_CONNECTED') {
+      if (data.type === 'CONNECTED') {
         RNMovesense.startListening()
       }
     }))
@@ -110,39 +117,45 @@ export default class App extends Component {
       nbrOfTruthy,
     } = this.state
     return (
-      <View style={styles.container}>
-        <TouchableHighlight onPress={this.testBridge}>
-          <Text style={styles.welcome}>
-            Test Bridge
-          </Text>
-        </TouchableHighlight>
+      <UIContainer
+        speed={nbrOfTruthy < 3 ? 'slow' : 'fast'}
+      />
+    )
+
+  //   return (
+  //     <View style={styles.container}>
+  //       <TouchableHighlight onPress={this.testBridge}>
+  //         <Text style={styles.welcome}>
+  //           Test Bridge
+  //         </Text>
+  //       </TouchableHighlight>
 
 
-        <TouchableHighlight onPress={this.init}>
-          <Text style={styles.welcome}>
-            Init
-          </Text>
-        </TouchableHighlight>
+  //       <TouchableHighlight onPress={this.init}>
+  //         <Text style={styles.welcome}>
+  //           Init
+  //         </Text>
+  //       </TouchableHighlight>
 
-        <TouchableHighlight onPress={this.startScan}>
-          <Text style={styles.welcome}>
-            Start scan
-          </Text>
-        </TouchableHighlight>
+  //       <TouchableHighlight onPress={this.startScan}>
+  //         <Text style={styles.welcome}>
+  //           Start scan
+  //         </Text>
+  //       </TouchableHighlight>
 
-        <TouchableHighlight onPress={this.startListening}>
-          <Text style={styles.welcome}>
-            Start listening
-          </Text>
-        </TouchableHighlight>
+  //       <TouchableHighlight onPress={this.startListening}>
+  //         <Text style={styles.welcome}>
+  //           Start listening
+  //         </Text>
+  //       </TouchableHighlight>
 
-        <TouchableHighlight onPress={this.startListening}>
-          <Text style={styles.welcome}>
-            Stop listening
-          </Text>
-        </TouchableHighlight>
-      </View>
-    );
+  //       <TouchableHighlight onPress={this.startListening}>
+  //         <Text style={styles.welcome}>
+  //           Stop listening
+  //         </Text>
+  //       </TouchableHighlight>
+  //     </View>
+  //   );
   }
 }
 

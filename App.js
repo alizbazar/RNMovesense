@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-
+import _ from 'lodash'
 import React, { Component } from 'react';
 import {
   Platform,
@@ -26,20 +26,69 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
+
+function sum(numbers) {
+  return _.reduce(numbers, (a, b) => a + b, 0);
+}
+
+function average(numbers) {
+  return sum(numbers) / (numbers.length || 1);
+}
+
+function makeWindow(before) {
+  return function (_number, index, array) {
+    const start = Math.max(0, index - before);
+    const end   = Math.min(array.length, index + 1);
+    return _.slice(array, start, end);
+  }
+}
+
+function movingAverage(numbers) {
+  const winSize = 10;
+  const values = _.chain(numbers)
+    .map('ArrayGyro[0].x')
+    .map(makeWindow(winSize))
+    .map(average)
+    .filter((value, i) => i !== 0 && i % winSize === 0)
+    .map(value => value > THRESHOLD || value < -THRESHOLD)
+    .value();
+  return values;
+}
+
+const MAX_HISTORY_LEN = 50
+const THRESHOLD = 1
 export default class App extends Component {
+  constructor (props) {
+    super (props)
+    this.state = {
+      nbrOfTruthy: 0,
+    }
+  }
   testBridge () {
     // console.log('DIR', Object.keys(RNMovesense))
     RNMovesense.addEvent('hey', 'there')
   }
 
+  history = []
   unsubscribers = []
   init = () => {
     this.unsubscribers.push(RNMovesenseEmitter.addListener('GYRO', data => {
-      console.log(JSON.stringify(data))
-      // console.log('GYRO', data)
+      this.history.push(data)
+      if (this.history.length > MAX_HISTORY_LEN) {
+        this.history.splice(0, 1)
+      }
+      const nbrOfTruthy = _.compact(movingAverage(this.history)).length
+      this.setState({
+        nbrOfTruthy,
+      })
+      console.log(nbrOfTruthy)
     }))
+    
     this.unsubscribers.push(RNMovesenseEmitter.addListener('INFO', data => {
       console.log('INFO', data)
+      if (data.type === 'DEVICE_CONNECTED') {
+        RNMovesense.startListening()
+      }
     }))
     RNMovesense.initialize()
   }
@@ -57,6 +106,9 @@ export default class App extends Component {
   }
 
   render() {
+    const {
+      nbrOfTruthy,
+    } = this.state
     return (
       <View style={styles.container}>
         <TouchableHighlight onPress={this.testBridge}>

@@ -1,0 +1,25 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '10.0'
+
+pod 'Movesense', :git => 'ssh://git@altssh.bitbucket.org:443/suunto/movesense-mobile-lib.git'
+pod 'PromiseKit', '~> 4.1'
+pod 'SwiftyJSON'
+
+target 'RNMovesense' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+
+  # Pods for RNMovesense
+
+  target 'RNMovesense-tvOSTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'RNMovesenseTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  use_frameworks!
+end

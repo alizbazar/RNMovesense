@@ -55,9 +55,7 @@ export default class SlowText extends React.Component {
   render() {
     const { text } = this.props;
     return (
-      {/*<Animatable.View ref="text" style={styles.view}>*/}
-        <Text style={styles.view}>{text}</Text>
-      // </Animatable.View>
+      <Text style={styles.view}>{text}</Text>
     );
   }
 }

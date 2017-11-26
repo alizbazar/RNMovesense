@@ -65,10 +65,13 @@ function averageOf(arr) {
 }
 
 const detectChange = (() => {
-  const MAX_LEN = 5
+  const ZERO_COUNT_THRESHOLD = 2/3
+  const ALT_SWITCH_THRESHOLD = 4
+  const ALT_SWITCH_THRESHOLD_SUM = 3.0
   const THRESHOLD = 5
+  let history = []
+  let alternativeHistory = []
   const TRAIL_LENGTH = 4 // half breaths in & out, should be multiple of 2
-  const history = []
   const trail = []
   let state = {
     direction: 'in',
@@ -80,74 +83,84 @@ const detectChange = (() => {
     setListener(callback) {
       listener = callback
     },
-    get() {
-      return state
-    },
-    update(val) {
-      const now = Date.now()
-      history.push({value: val, timestamp: now})
-      if (history.length < MAX_LEN) {
-        if (history.length === (MAX_LEN - 1)) {
-          // INITIALIZE
-          const avg = history.reduce((sum, current) => sum + current, 0) / history.length
-          const direction = avg > 0 ? 'out' : 'in'
-          const startedAt = history[0].timestamp
-          state = {
-            direction,
-            startedAt,
+    refreshAltHistory() {
+      let newAltHistory = []
+      let startFrom = 0
+      let zeroCount = 0
+      let shouldCut = false
+      for (let i = 0, max = alternativeHistory.length; i < max; i++) {
+        const item = alternativeHistory[i]
+        newAltHistory.push(item)
+        if (!item.value) {
+          zeroCount++
+          const itemsLookedAt = i - startFrom
+          if (itemsLookedAt && (zeroCount / itemsLookedAt) > ZERO_COUNT_THRESHOLD) {
+            shouldCut = true
+          }
+        } else {
+          if (shouldCut) {
+            shouldCut = false
+            newAltHistory = [item]
+            startFrom = i
+            zeroCount = 0
           }
         }
-        return
+
+        return newAltHistory.length === alternativeHistory.length ? alternativeHistory : newAltHistory
       }
-      if (history.length > MAX_LEN) {
-        history.splice(0, 1)
-      }
-      
-      return this.detectChange()
     },
-    detectChange() {
-      const sign = state.direction === 'in' ? 1 : -1
-      const min = sign * Math[sign > 0 ? 'min' : 'max'](history[0].value, history[1].value)
-      const max = sign * Math[sign > 0 ? 'max' : 'min'](history[1].value, history[2].value)
-      let didChange = true
-      if (min > 0) {
-        didChange = false
-      } else if (max < 0) {
-        didChange = false
-      } else if ((max - min) < THRESHOLD) {
-        didChange = false
-      } else if ((sign * averageOf([history[2].value, history[3].value, history[4].value])) < 0) {
-        didChange = false
-      } else if (history.indexOf(changeItem) > 0) {
-        didChange = false
+    update(val) {
+      const sign = state.direction === 'out' ? 1 : -1
+
+      const isCurrent = val * sign > 0
+      history.push({
+        value: isCurrent ? val : 0,
+        timestamp: Date.now(),
+      })
+      alternativeHistory.push({
+        value: isCurrent ? 0 : val,
+        timestamp: Date.now(),
+      })
+      alternativeHistory = this.refreshAltHistory()
+
+      if (alternativeHistory.length < ALT_SWITCH_THRESHOLD) {
+        console.log('not enough', alternativeHistory.length)
+        return false
       }
-      if (didChange) {
-        state = {
-          direction: (state.direction === 'in' ? 'out' : 'in'),
-          startedAt: Date.now(),
-        }
-        changeItem = history[MAX_LEN - 1]
-        trail.push(state)
-        if (trail.length > TRAIL_LENGTH) {
-          trail.splice(0, 1)
-        }
-        let breathLength = null
-        if (trail.length === TRAIL_LENGTH) {
-          breathLength = (trail[TRAIL_LENGTH - 1].startedAt - trail[0].startedAt) / TRAIL_LENGTH * 2
-        }
-        state.breathLength = breathLength
-        console.log('                 ', state)
-        if (listener) {
-          listener(state)
-        }
+
+      // const sum = alternativeHistory.reduce((sum, item) => sum + item.value, 0)
+      // if (sum < ALT_SWITCH_THRESHOLD_SUM) {
+      //   return false
+      // }
+
+      const newHistory = alternativeHistory
+      alternativeHistory = history
+      history = newHistory
+      alternativeHistory = this.refreshAltHistory()
+      
+      state = {
+        direction: (state.direction === 'in' ? 'out' : 'in'),
+        startedAt: Date.now(),
       }
-      return didChange
+      trail.push(state)
+      if (trail.length > TRAIL_LENGTH) {
+        trail.splice(0, 1)
+      }
+      let breathLength = null
+      if (trail.length === TRAIL_LENGTH) {
+        breathLength = (trail[TRAIL_LENGTH - 1].startedAt - trail[0].startedAt) / TRAIL_LENGTH * 2
+      }
+      state.breathLength = breathLength
+      console.log('                 ', state)
+      if (listener) {
+        listener(state)
+      }
+
+      return true
     }
   }
 })()
 
-const KalmanFilter = require('kalmanjs').default
-const kalmanFilter = new KalmanFilter({R: 0.05, Q: -0.7})
 function processData (data) {
   const {
     Timestamp,
@@ -156,8 +169,7 @@ function processData (data) {
   // console.log(Timestamp, ArrayGyro)
   const { x, y, z } = ArrayGyro[0]
   alphaSmooth.update(x)
-  const val = kalmanFilter.filter(x)
-  const normalized = alphaSmooth.normalize(val)
+  const normalized = alphaSmooth.normalize(x)
   detectChange.update(normalized)
   printVal(x, normalized, normalized)
 }

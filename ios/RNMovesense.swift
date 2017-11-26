@@ -33,7 +33,7 @@ class RNMovesense: RCTEventEmitter {
       self.sendEvent(withName: "INFO", body: ["type": "CONNECTED"])
     },
                                deviceDisconnected: { (device) in
-                                self.sendEvent(withName: "INFO", body: ["type": "DEVICE_CONNECTED"])
+                                self.sendEvent(withName: "INFO", body: ["type": "DISCONNECTED"])
                                 print("Disconnected", device)
     },
                                bleOnOff: { (state) in

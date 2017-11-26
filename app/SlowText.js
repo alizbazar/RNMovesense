@@ -18,8 +18,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'AvenirNext-Medium',
     fontSize,
-    textAlign: 'center',
-    width: '100%'
+    paddingLeft: 10,
+    paddingRight: 10,
+    textAlign: 'center'
   }
 });
 
@@ -57,7 +58,7 @@ export default class SlowText extends React.Component {
   }
 
   render() {
-    const { text } = this.props;
+    const { text } = this.state;
     return (
       <Animatable.View ref="text" style={styles.view}>
         <Text style={styles.text}>{text}</Text>

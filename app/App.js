@@ -50,15 +50,11 @@ const styles = StyleSheet.create({
   }
 });
 
-function getText(isInit, goal, speed) {
+function getText(isInit, speed) {
   if (!isInit) {
-    if (goal === 'fast') {
-      return 'Try breathing\nslower';
-    } else {
-      return 'Try breathing\nfaster';
-    }
+    return 'Try breathing\nfaster';
   } else {
-    if (speed === goal) {
+    if (speed === 'fast') {
       return 'Great! Where do you feel the breath?';
     } else {
       return 'Hey you can do better!';
@@ -77,10 +73,7 @@ export default class App extends React.Component {
   }
 
   start() {
-    const { speed } = this.props;
-    const goal = speed === 'slow' ? 'fast' : 'slow';
     this.setState({
-      goal,
       step: 'start'
     });
     setTimeout(() => {
@@ -90,9 +83,9 @@ export default class App extends React.Component {
 
   render() {
     const { speed } = this.props;
-    const { goal, step, isInit } = this.state;
-    const text = step !== 'home' ? getText(isInit, goal, speed) : null;
-    console.log(text, goal, speed);
+    const { step, isInit } = this.state;
+    const text = step !== 'home' ? getText(isInit, speed) : null;
+    console.log('Render:', text, 'with speed:', speed);
     const animate = step !== 'home';
     const rayHeight = step === 'home' ? '0%' : '60%';
     return (

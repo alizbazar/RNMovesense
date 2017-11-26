@@ -2,7 +2,7 @@ import React from 'react';
 import { Circle as SvgCircle } from 'react-native-svg';
 
 const speeds = {
-  slow: 0.8,
+  slow: 0.7,
   fast: 1.1
 };
 

@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const fadeDuration = 500;
+const fadeDuration = 300;
 
 export default class SlowText extends React.Component {
   constructor() {
@@ -32,10 +32,7 @@ export default class SlowText extends React.Component {
     this.state = {
       text: null
     };
-    this.changeText = _.debounce(this.changeText.bind(this), fadeDuration, {
-      leading: true,
-      trailing: true
-    });
+    this.changeText = _.debounce(this.changeText.bind(this), fadeDuration);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -52,7 +49,8 @@ export default class SlowText extends React.Component {
     }
     setTimeout(() => {
       this.setState({ text }, () => {
-        this.refs.text.fadeIn(fadeDuration);
+        const duration = originalText ? fadeDuration : 4 * fadeDuration;
+        this.refs.text.fadeIn(duration);
       });
     }, originalText ? fadeDuration : 0);
   }

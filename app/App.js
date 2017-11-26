@@ -55,9 +55,9 @@ function getText(isInit, speed) {
     return 'Try breathing\nfaster';
   } else {
     if (speed === 'fast') {
-      return 'Great! Where do you feel the breath?';
+      return 'You are breathing fast';
     } else {
-      return 'Hey you can do better!';
+      return 'You are breathing slow';
     }
   }
 }
@@ -78,14 +78,13 @@ export default class App extends React.Component {
     });
     setTimeout(() => {
       this.setState({ isInit: true });
-    }, 6000);
+    }, 5000);
   }
 
   render() {
     const { speed } = this.props;
     const { step, isInit } = this.state;
     const text = step !== 'home' ? getText(isInit, speed) : null;
-    console.log('Render:', text, 'with speed:', speed);
     const animate = step !== 'home';
     const rayHeight = step === 'home' ? '0%' : '60%';
     return (

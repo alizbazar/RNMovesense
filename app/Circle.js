@@ -27,7 +27,7 @@ export default class Circle extends React.Component {
     const { animate, delay } = this.props;
     if (animate) {
       setTimeout(() => {
-        this.interval = setInterval(this.increaseRadius, 1);
+        this.interval = setInterval(this.increaseRadius, 16);
       }, delay);
     }
   }
@@ -38,7 +38,7 @@ export default class Circle extends React.Component {
     if (r > width) {
       clearInterval(this.interval);
       this.setState({ r: originalR }, () => {
-        this.interval = setInterval(this.increaseRadius, 1);
+        this.interval = setInterval(this.increaseRadius, 16);
       });
     }
   }

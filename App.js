@@ -88,11 +88,11 @@ export default class App extends Component {
       this.setState({
         nbrOfTruthy,
       })
-      console.log(nbrOfTruthy)
+      //console.log(nbrOfTruthy)
     }))
     
     this.unsubscribers.push(RNMovesenseEmitter.addListener('INFO', data => {
-      console.log('INFO', data)
+      //console.log('INFO', data)
       if (data.type === 'CONNECTED') {
         RNMovesense.startListening()
       }

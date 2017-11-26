@@ -10,7 +10,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     position: 'absolute',
     top: '62%',
-    zIndex: 99,
+    width: '100%',
+    zIndex: 99
+  },
+  text: {
+    backgroundColor: 'transparent',
     color: '#fff',
     fontFamily: 'AvenirNext-Medium',
     fontSize,
@@ -56,7 +60,7 @@ export default class SlowText extends React.Component {
     const { text } = this.props;
     return (
       <Animatable.View ref="text" style={styles.view}>
-        <Text style={styles.view}>{text}</Text>
+        <Text style={styles.text}>{text}</Text>
       </Animatable.View>
     );
   }

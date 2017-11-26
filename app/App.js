@@ -55,7 +55,7 @@ function getText(isInit, goal, speed) {
     if (goal === 'fast') {
       return 'Try breathing\nslower';
     } else {
-      return 'Try breathing\nslower';
+      return 'Try breathing\nfaster';
     }
   } else {
     if (speed === goal) {
